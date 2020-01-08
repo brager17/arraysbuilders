@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using FluentAssertions;
 
 namespace ConsoleApp1
 {
@@ -31,29 +30,25 @@ namespace ConsoleApp1
     public class CompareArraysBuildersBenchmark
     {
         private ArrayBuilderAsList<PersonStruct> _asList;
-        private ArrayBuilderWithChunksUsage<PersonStruct> _useChunks;
-        private IEnumerable<PersonStruct> _personStructs;
         [Params(10)] public int _count;
 
         [GlobalSetup]
         public void Setup()
         {
             _asList = new ArrayBuilderAsList<PersonStruct>();
-            _useChunks = new ArrayBuilderWithChunksUsage<PersonStruct>();
-            _personStructs = Enumerable.Range(1, _count).Select(x => new PersonStruct() {Age = 12, Name = "n"}).ToArray();
         }
 
         [Benchmark]
         public void AsList()
         {
-            var r = _asList.GetArr(_personStructs);
+            var r = _asList.GetArr(Enumerable.Range(1, _count).Select(x => new PersonStruct() {Age = 12, Name = "n"}).ToArray());
         }
         
         
         [Benchmark]
         public void WithChunks()
         {
-            var r = _useChunks.GetArr(_personStructs);
+            var r = new ArrayBuilderWithChunksUsage<PersonStruct>().GetArr(Enumerable.Range(1, _count).Select(x => new PersonStruct() {Age = 12, Name = "n"}).ToArray());
         }
     }
 
