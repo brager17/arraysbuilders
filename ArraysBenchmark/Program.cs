@@ -29,26 +29,26 @@ namespace ConsoleApp1
     [MemoryDiagnoser]
     public class CompareArraysBuildersBenchmark
     {
-        private ArrayBuilderAsList<PersonStruct> _asList;
-        [Params(10)] public int _count;
+        [Params(8193)] public int _count;
+        private PersonStruct[] _personStructs;
 
         [GlobalSetup]
         public void Setup()
         {
-            _asList = new ArrayBuilderAsList<PersonStruct>();
+            _personStructs = Enumerable.Range(1, _count).Select(x => new PersonStruct() {Age = 12, Name = "n"}).ToArray();
         }
 
         [Benchmark]
         public void AsList()
         {
-            var r = _asList.GetArr(Enumerable.Range(1, _count).Select(x => new PersonStruct() {Age = 12, Name = "n"}).ToArray());
+            var r = new ArrayBuilderAsList<PersonStruct>().GetArr(_personStructs);
         }
         
         
         [Benchmark]
         public void WithChunks()
         {
-            var r = new ArrayBuilderWithChunksUsage<PersonStruct>().GetArr(Enumerable.Range(1, _count).Select(x => new PersonStruct() {Age = 12, Name = "n"}).ToArray());
+            var r = new ArrayBuilderWithChunksUsage<PersonStruct>().GetArr(_personStructs);
         }
     }
 
