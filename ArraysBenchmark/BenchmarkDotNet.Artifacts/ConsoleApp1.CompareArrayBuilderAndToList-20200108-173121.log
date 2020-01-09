@@ -1,0 +1,43 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 2 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet restore  /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 in /Users/evgenijterehin/RiderProjects/ConsoleApp1/ArraysBenchmark/bin/Release/netcoreapp3.0/f783b0cf-7cb1-473d-9dbc-d93118e4c787
+// command took 1.02s and exited with 0
+// start dotnet build -c Release  --no-restore /p:UseSharedCompilation=false /p:BuildInParallel=false /m:1 in /Users/evgenijterehin/RiderProjects/ConsoleApp1/ArraysBenchmark/bin/Release/netcoreapp3.0/f783b0cf-7cb1-473d-9dbc-d93118e4c787
+// command took 1.89s and exited with 0
+// ***** Done, took 00:00:03 (3 sec)   *****
+// Found 2 benchmarks:
+//   CompareArrayBuilderAndToList.BuildArray: DefaultJob [_count=1000]
+//   CompareArrayBuilderAndToList.ToList: DefaultJob [_count=1000]
+
+// **************************
+// Benchmark: CompareArrayBuilderAndToList.BuildArray: DefaultJob [_count=1000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet "f783b0cf-7cb1-473d-9dbc-d93118e4c787.dll" --benchmarkName "ConsoleApp1.CompareArrayBuilderAndToList.BuildArray(_count: 1000)" --job "Default" --benchmarkId 0 in /Users/evgenijterehin/RiderProjects/ConsoleApp1/ArraysBenchmark/bin/Release/netcoreapp3.0/f783b0cf-7cb1-473d-9dbc-d93118e4c787/bin/Release/netcoreapp3.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// Runtime=.NET Core 3.0.0 (CoreCLR 4.700.19.46205, CoreFX 4.700.19.46214), X64 RyuJIT
+// GC=Concurrent Workstation
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 342319.00 ns, 342.3190 us/op
+WorkloadJitting  1: 1 op, 1087624.00 ns, 1.0876 ms/op
+
+OverheadJitting  2: 16 op, 234755.00 ns, 14.6722 us/op
+WorkloadJitting  2: 16 op, 687395.00 ns, 42.9622 us/op
+
+WorkloadPilot    1: 16 op, 277435.00 ns, 17.3397 us/op
+WorkloadPilot    2: 32 op, 753433.00 ns, 23.5448 us/op
+WorkloadPilot    3: 64 op, 1478215.00 ns, 23.0971 us/op
+WorkloadPilot    4: 128 op, 2963391.00 ns, 23.1515 us/op
+WorkloadPilot    5: 256 op, 5213582.00 ns, 20.3656 us/op
+WorkloadPilot    6: 512 op, 11135020.00 ns, 21.7481 us/op
+WorkloadPilot    7: 1024 op, 19406597.00 ns, 18.9518 us/op
+WorkloadPilot    8: 2048 op, 38282865.00 ns, 18.6928 us/op
+WorkloadPilot    9: 4096 op, 62795237.00 ns, 15.3309 us/op
+WorkloadPilot   10: 8192 op, 116498057.00 ns, 14.2210 us/op
+WorkloadPilot   11: 16384 op, 216026048.00 ns, 13.1852 us/op
+WorkloadPilot   12: 32768 op, 417175844.00 ns, 12.7312 us/op

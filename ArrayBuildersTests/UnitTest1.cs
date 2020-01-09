@@ -32,6 +32,8 @@ namespace ArrayBuildersTests
                 .Should()
                 .Equal(expectation);
         }
+        
+       
     }
 
     public class TestData : IEnumerable<object[]>

@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>ConsoleApp1.CompareArraysBuildersBenchmark-20200108-165704</title>
+<title>ConsoleApp1.CompareArrayBuilderAndToList-20200109-083858</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -22,9 +22,11 @@ Intel Core i7-9750H CPU 2.60GHz, 1 CPU, 12 logical and 6 physical cores
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>_count</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
+<thead><tr><th>      Method</th><th>_count</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen 0</th><th>Gen 1</th><th>Gen 2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>AsList</td><td>1000</td><td>17.41 us</td><td>0.101 us</td><td>0.090 us</td><td>5.2490</td><td>-</td><td>-</td><td>32.23 KB</td>
+</thead><tbody><tr><td>ToListClasses</td><td>10000</td><td>744.2 us</td><td>9.01 us</td><td>8.43 us</td><td>117.1875</td><td>78.1250</td><td>39.0625</td><td>725.11 KB</td>
+</tr><tr><td>BuildArrayClasses</td><td>10000</td><td>762.3 us</td><td>14.09 us</td><td>13.18 us</td><td>117.1875</td><td>78.1250</td><td>39.0625</td><td>725.12 KB</td>
+</tr><tr><td>BuildMyListClasses</td><td>10000</td><td>761.0 us</td><td>10.51 us</td><td>9.83 us</td><td>117.1875</td><td>78.1250</td><td>39.0625</td><td>725.12 KB</td>
 </tr></tbody></table>
 </body>
 </html>
