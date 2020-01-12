@@ -32,62 +32,9 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
-        }
-    }
-
-    [MemoryDiagnoser]
-    public class CompareArraysBuildersBenchmark
-    {
-        [Params(1000)] public int _count;
-        private IEnumerable<PersonStruct> _personStructs;
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            _personStructs = Enumerable
-                .Range(1, _count)
-                .Select(x => new PersonStruct() {Age = 12, Name = "n"});
-        }
-
-        [Benchmark]
-        public void AsList()
-        {
-            // var r = new ArrayBuilderAsList<PersonStruct>().GetArr(_personStructs);
-        }
-
-        //
-        // [Benchmark]
-        // public void WithChunks()
-        // {
-        //     var r = new ArrayBuilderWithChunksUsage<PersonStruct>().GetArr(_personStructs);
-        // }
-        //
-        //
-        // [Benchmark]
-        // public void ToList()
-        // {
-        //     var r = _personStructs.ToList();
-        // }
-    }
-
-    public class JitOptimizationBenchmark
-    {
-        private int[] arr = new int[3];
-
-        [Benchmark]
-        public void WriteInField()
-        {
-            var localArr = arr;
-            if (localArr.Length > 2)
-                localArr[2] = 1;
-        }
-
-        [Benchmark]
-        public void WriteInLocalVariable()
-        {
-            if (arr.Length > 2)
-                arr[2] = 1;
+            BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
+            // BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
+            // BenchmarkRunner.Run<ToArrayBenchmark>();
         }
     }
 
@@ -97,7 +44,7 @@ namespace ConsoleApp1
         private IEnumerable<PersonStruct> Enumerable;
         private IEnumerable<PersonClass> EnumerableClasses;
 
-        [Params(10_000)] public int _count;
+        [Params(100_000)] public int _count;
 
         private IEnumerable<PersonStruct> GetEnumerable()
         {
@@ -130,38 +77,95 @@ namespace ConsoleApp1
             EnumerableClasses = GetEnumerableClasses();
         }
 
-
-        // [Benchmark]
-        // public void BuildArray()
-        // {
-        //     var r = new ArrayBuilderAsList<PersonStruct>().GetArr(Enumerable);
-        // }
-        //
-        // [Benchmark]
-        // public void ToList()
-        // {
-        //     var r = Enumerable.ToList();
-        // }
-
-
         [Benchmark]
         public void ToListClasses()
         {
             var r = EnumerableClasses.ToList();
         }
 
-
         [Benchmark]
-        public void BuildArrayClasses()
-        {
-            var r = EnumerableClasses.MyToArray();
-        }
-        
-        
-        [Benchmark]
-        public void BuildMyListClasses()
+        public void ToListCopyClasses()
         {
             var r = EnumerableClasses.ToListCopy();
+        }
+
+        [Benchmark]
+        public void ToListStructures()
+        {
+            var r = Enumerable.ToList();
+        }
+
+        [Benchmark]
+        public void ToListCopyStructures()
+        {
+            var r = Enumerable.ToListCopy();
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class ToArrayBenchmark
+    {
+        private IEnumerable<PersonStruct> Enumerable;
+        private IEnumerable<PersonClass> EnumerableClasses;
+
+        [Params(100_000)] public int _count;
+
+        private IEnumerable<PersonStruct> GetEnumerable()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return new PersonStruct
+                {
+                    Name = "name",
+                    Age = 12
+                };
+            }
+        }
+
+        private IEnumerable<PersonClass> GetEnumerableClasses()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return new PersonClass()
+                {
+                    Name = "name",
+                    Age = 12
+                };
+            }
+        }
+
+        [GlobalSetup]
+        public void Setup()
+        {
+            Enumerable = GetEnumerable();
+            EnumerableClasses = GetEnumerableClasses();
+        }
+
+        [Benchmark]
+        public void OriginalToArrayClasses()
+        {
+            var r = EnumerableClasses.ToArray();
+        }
+
+
+        [Benchmark]
+        public void CopyToArrayClasses()
+        {
+            var r = EnumerableClasses.ToArrayCopy();
+        }
+
+
+        [Benchmark]
+        public void OriginalToArrayStructure()
+        {
+            var r = Enumerable.ToArray();
+        }
+
+
+        [Benchmark]
+        public void CopyToArrayStructure()
+        {
+            var r = Enumerable.ToArrayCopy();
         }
     }
 
@@ -377,16 +381,47 @@ namespace ConsoleApp1
 
     public static class ArrayBuilderExtensions
     {
-        public static T[] MyToArray<T>(this IEnumerable<T> enumerable)
+        public static T[] ToListCopy<T>(this IEnumerable<T> enumerable)
         {
-            var q = new ArrayBuilderAsList<T>(enumerable);
-            return q._arr;
+            return new MyArrayBuilderFromOneMethod().GetArray(enumerable);
         }
-        
-        
-        public static MyList<T> ToListCopy<T>(this IEnumerable<T> enumerable)
+
+        public static T[] ToArrayCopy<T>(this IEnumerable<T> enumerable)
         {
-            return new MyList<T>(enumerable);
+            return new MyArrayBuilderWithChunks().GetArray(enumerable);
         }
     }
+
+    [MemoryDiagnoserﬁ]
+    public class CopyArrayStructureVsClasses
+    {
+        private PersonClass[] _classes;
+        private PersonStruct[] _structs;
+        [Params(10000)]
+        public int count;
+        
+        [GlobalSetup]
+        public void Setup()
+        {
+            _classes = Enumerable.Range(1, count).Select(x => new PersonClass()).ToArray();
+            _structs = Enumerable.Range(1, count).Select(x => new PersonStruct()).ToArray();
+        }
+
+        [Benchmark]
+        public void ClassCopy()
+        {
+            var classes = new PersonClass[count];
+            Array.Copy(_classes,0,classes,0,count);
+        }
+
+
+        [Benchmark]
+        public void StructCopy()
+        {
+            var structs = new PersonStruct[count];
+            Array.Copy(_structs,0,structs,0,count);
+       
+        }
+    }
+
 }
