@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+using EntityFrameworkCore;
 
 namespace ConsoleApp1
 {
@@ -35,6 +36,7 @@ namespace ConsoleApp1
             BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
             BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
             BenchmarkRunner.Run<ToArrayBenchmark>();
+            BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
         }
     }
 
@@ -535,5 +537,33 @@ namespace ConsoleApp1
         {
             var r = EnumerableStructs.ToList();
         }
+
     }
+
+    [MemoryDiagnoser]
+    public class ToListToArrayQueryableBenchmark
+    {
+        private PersonTester _personTester;
+        private IQueryable<Person> _queryable;
+        [Params(10_000)] public int Count;
+        [GlobalSetup]
+        public void Setup()
+        {
+            _personTester = new PersonTester();
+            _queryable = Enumerable.Range(1, Count).Select(x => new Person())
+                .AsQueryable();
+        }
+        [Benchmark]
+        public void ToList()
+        {
+            var r = _personTester.Case1(_queryable);
+        }        
+        [Benchmark]
+        public void ToArray()
+        {
+            var r = _personTester.Case2(_queryable);
+        }      
+
+    }
+
 }
