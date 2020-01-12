@@ -33,8 +33,8 @@ namespace ConsoleApp1
         static void Main(string[] args)
         {
             BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
-            // BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
-            // BenchmarkRunner.Run<ToArrayBenchmark>();
+            BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
+            BenchmarkRunner.Run<ToArrayBenchmark>();
         }
     }
 
@@ -44,7 +44,8 @@ namespace ConsoleApp1
         private IEnumerable<PersonStruct> Enumerable;
         private IEnumerable<PersonClass> EnumerableClasses;
 
-        [Params(100_000)] public int _count;
+        [Params(10, 100, 1000, 10_000, 100_000)]
+        public int _count;
 
         private IEnumerable<PersonStruct> GetEnumerable()
         {
@@ -108,7 +109,8 @@ namespace ConsoleApp1
         private IEnumerable<PersonStruct> Enumerable;
         private IEnumerable<PersonClass> EnumerableClasses;
 
-        [Params(100_000)] public int _count;
+        [Params(10, 100, 1000, 10_000, 100_000)]
+        public int _count;
 
         private IEnumerable<PersonStruct> GetEnumerable()
         {
@@ -392,14 +394,14 @@ namespace ConsoleApp1
         }
     }
 
-    [MemoryDiagnoserﬁ]
+    [MemoryDiagnoser]
     public class CopyArrayStructureVsClasses
     {
         private PersonClass[] _classes;
         private PersonStruct[] _structs;
-        [Params(10000)]
+        [Params(10, 100, 1000, 10_000, 100_000)]
         public int count;
-        
+
         [GlobalSetup]
         public void Setup()
         {
@@ -411,7 +413,7 @@ namespace ConsoleApp1
         public void ClassCopy()
         {
             var classes = new PersonClass[count];
-            Array.Copy(_classes,0,classes,0,count);
+            Array.Copy(_classes, 0, classes, 0, count);
         }
 
 
@@ -419,9 +421,7 @@ namespace ConsoleApp1
         public void StructCopy()
         {
             var structs = new PersonStruct[count];
-            Array.Copy(_structs,0,structs,0,count);
-       
+            Array.Copy(_structs, 0, structs, 0, count);
         }
     }
-
 }
