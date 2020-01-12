@@ -72,22 +72,10 @@ namespace ArrayBuildersTests
             return GetEnumerator();
         }
 
-        public List<T> ToList<T>(ICollection<T> collection)
+        [Fact]
+        public void S()
         {
-            // внутри делает то же самое, что и ToArray
-            var list = new List<T>(collection);
-            return list;
-        }
-        
-        public T[] ToArray<T>(ICollection<T> collection)
-        {
-            var arr = new T[collection.Count];
-            collection.CopyTo(arr,0);
-            IQueryable<int> queryable;
-            new int[] {1}.AsQueryable().ToList();
-            return arr;
-            
-            
+            Enumerable.Range(1, 1000).Select(x => new PersonClass()).ToList();
         }
     }
 }

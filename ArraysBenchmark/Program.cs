@@ -33,9 +33,9 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
-            BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
-            BenchmarkRunner.Run<ToArrayBenchmark>();
+            // BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
+            // BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
+            // BenchmarkRunner.Run<ToArrayBenchmark>();
             BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
         }
     }
@@ -550,8 +550,15 @@ namespace ConsoleApp1
         public void Setup()
         {
             _personTester = new PersonTester();
-            _queryable = Enumerable.Range(1, Count).Select(x => new Person())
-                .AsQueryable();
+            _queryable = GetPerson().AsQueryable();
+        }
+
+        private IEnumerable<Person> GetPerson()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                yield return new Person();
+            }
         }
         [Benchmark]
         public void ToList()
