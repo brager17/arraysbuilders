@@ -28,6 +28,12 @@ namespace ArrayBuildersTests
                 .Should()
                 .Equal(expectation);
         }
+
+        public void CastArray()
+        {
+            var a = new int[] {1, 2, 3};
+            var collection = a as ICollection<int>;
+        }
         
        
     }
@@ -64,6 +70,24 @@ namespace ArrayBuildersTests
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public List<T> ToList<T>(ICollection<T> collection)
+        {
+            // внутри делает то же самое, что и ToArray
+            var list = new List<T>(collection);
+            return list;
+        }
+        
+        public T[] ToArray<T>(ICollection<T> collection)
+        {
+            var arr = new T[collection.Count];
+            collection.CopyTo(arr,0);
+            IQueryable<int> queryable;
+            new int[] {1}.AsQueryable().ToList();
+            return arr;
+            
+            
         }
     }
 }

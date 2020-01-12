@@ -399,6 +399,7 @@ namespace ConsoleApp1
     {
         private PersonClass[] _classes;
         private PersonStruct[] _structs;
+
         [Params(10, 100, 1000, 10_000, 100_000)]
         public int count;
 
@@ -422,6 +423,117 @@ namespace ConsoleApp1
         {
             var structs = new PersonStruct[count];
             Array.Copy(_structs, 0, structs, 0, count);
+        }
+    }
+
+    public class CompareToArrayVsToList
+    {
+        private IEnumerable<PersonStruct> EnumerableStructs;
+        private IEnumerable<PersonClass> EnumerableClasses;
+        private IEnumerable<int> EnumerableInts;
+        private IEnumerable<string> EnumerableStrings;
+
+        [Params(10, 100, 1000, 10_000, 100_000, 1000_000)]
+        public int _count;
+
+        public CompareToArrayVsToList()
+        {
+            EnumerableStructs = GetEnumerable();
+            EnumerableClasses = GetEnumerableClasses();
+            EnumerableInts = GetEnumerableInts();
+            EnumerableStrings = GetEnumerableStrings();
+        }
+
+        private IEnumerable<PersonStruct> GetEnumerable()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return new PersonStruct
+                {
+                    Name = "name",
+                    Age = 12
+                };
+            }
+        }
+
+        private IEnumerable<PersonClass> GetEnumerableClasses()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return new PersonClass()
+                {
+                    Name = "name",
+                    Age = 12
+                };
+            }
+        }
+
+        private IEnumerable<int> GetEnumerableInts()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return 1;
+            }
+        }
+
+        private IEnumerable<string> GetEnumerableStrings()
+        {
+            for (var i = 0; i < _count; i++)
+            {
+                yield return "string";
+            }
+        }
+
+        [Benchmark]
+        public void ToArrayInt()
+        {
+            var r = EnumerableInts.ToArray();
+        }
+
+        [Benchmark]
+        public void ToArrayString()
+        {
+            var r = EnumerableStrings.ToArray();
+        }
+
+
+        [Benchmark]
+        public void ToArrayClass()
+        {
+            var r = EnumerableClasses.ToArray();
+        }
+
+
+        [Benchmark]
+        public void ToArrayStruct()
+        {
+            var r = EnumerableStructs.ToArray();
+        }
+
+        [Benchmark]
+        public void ToListInt()
+        {
+            var r = EnumerableInts.ToList();
+        }
+
+        [Benchmark]
+        public void ToListString()
+        {
+            var r = EnumerableStrings.ToList();
+        }
+
+
+        [Benchmark]
+        public void ToListClass()
+        {
+            var r = EnumerableClasses.ToList();
+        }
+
+
+        [Benchmark]
+        public void ToListStruct()
+        {
+            var r = EnumerableStructs.ToList();
         }
     }
 }
