@@ -10,9 +10,6 @@ namespace ArrayBuildersTests
 {
     public class ArrayBuildersTest
     {
-      
-
-
         public ArrayBuildersTest()
         {
         }
@@ -34,8 +31,6 @@ namespace ArrayBuildersTests
             var a = new int[] {1, 2, 3};
             var collection = a as ICollection<int>;
         }
-        
-       
     }
 
     public class TestData : IEnumerable<object[]>
@@ -54,10 +49,12 @@ namespace ArrayBuildersTests
             classes = Enumerable.Range(1, 10000).Select(x => new PersonClass()
                     {Name = Guid.NewGuid().ToString(), Age = (byte) random.Next(0, 100)})
                 .ToArray();
+
         }
 
         public IEnumerator<object[]> GetEnumerator()
         {
+            Enumerable.Range(1, 100);
             yield return new object[] {new MyArrayBuilderWithChunks(), structs};
             yield return new object[] {new MyArrayBuilderFromOneMethod(), structs};
         }
@@ -75,7 +72,27 @@ namespace ArrayBuildersTests
         [Fact]
         public void S()
         {
-            Enumerable.Range(1, 1000).Select(x => new PersonClass()).ToList();
+            var q = GetIntEnumerable()
+                .OrderBy(x => x)
+                .Take(100)
+                .ToList()
+                .ToArray();
+        }
+
+        private IEnumerable<int> GetIntEnumerable()
+        {
+            for (var i = 0; i < 10000; i++)
+                yield return i;
+        }
+    }
+
+
+
+    public struct Class
+    {
+        public Class(bool v)
+        {
+            this = new Class(true);
         }
     }
 }

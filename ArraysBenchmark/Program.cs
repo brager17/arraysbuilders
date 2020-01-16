@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -29,14 +30,63 @@ namespace ConsoleApp1
         public byte Age2;
     }
 
+    public struct Struct
+    {
+        public int Test;
+        public int Test1;
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(sizeof(decimal));
             // BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
             // BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
             // BenchmarkRunner.Run<ToArrayBenchmark>();
-            BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
+            // Console.WriteLine(Marshal.SizeOf<PersonClass>());
+            // BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
+            BenchmarkRunner.Run<CompareToArrayVsToList>();
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class MemoryTest
+    {
+        [Benchmark]
+        public PersonClass ClassSize()
+        {
+            return new PersonClass();
+        }
+
+        private void NoAllocatedMethod(PersonClass personClass)
+        {
+            var q = personClass.Age;
+        }
+
+        //
+        // [Benchmark]
+        // public void StructSize()
+        // {
+        //     var arr = new PersonClass[10];
+        //     arr[0] = new PersonClass();
+        //     arr[1] = new PersonClass();
+        //     arr[2] = new PersonClass();
+        //     arr[3] = new PersonClass();
+        //     arr[4] = new PersonClass();
+        //     arr[5] = new PersonClass();
+        //     arr[6] = new PersonClass();
+        //     arr[7] = new PersonClass();
+        //     arr[8] = new PersonClass();
+        //     arr[9] = new PersonClass();
+        // }
+
+        public void IntPtrTest()
+        {
+            unsafe
+            {
+                System.Runtime.InteropServices.Marshal.SizeOf(typeof(IntPtr));
+            }
         }
     }
 
@@ -101,6 +151,7 @@ namespace ConsoleApp1
         [Benchmark]
         public void ToListCopyStructures()
         {
+            var a = 0X7FEFFFFF;
             var r = Enumerable.ToListCopy();
         }
     }
@@ -435,7 +486,44 @@ namespace ConsoleApp1
         private IEnumerable<int> EnumerableInts;
         private IEnumerable<string> EnumerableStrings;
 
-        [Params(10, 100, 1000, 10_000, 100_000, 1000_000)]
+        [Params(
+            10,
+            16, 17,
+            24,
+            32, 33,
+            48,
+            64, 65,
+            96,
+            128, 129,
+            192,
+            256, 257,
+            384,
+            512, 513,
+            768,
+            1024, 1025,
+            1536,
+            2048, 2049,
+            3072,
+            4096, 4097,
+            6144,
+            8182, 8183,
+            12288,
+            16384, 16385,
+            24576,
+            262144, 262145,
+            393216,
+            524288, 524289,
+            786432,
+            1048576, 1048567,
+            1572864,
+            2097152, 2097153,
+            3145728,
+            4194304, 4194305,
+            6291456,
+            8388608, 8388609,
+            12582912,
+            16777216, 16777217
+        )]
         public int _count;
 
         public CompareToArrayVsToList()
@@ -537,7 +625,6 @@ namespace ConsoleApp1
         {
             var r = EnumerableStructs.ToList();
         }
-
     }
 
     [MemoryDiagnoser]
@@ -546,6 +633,7 @@ namespace ConsoleApp1
         private PersonTester _personTester;
         private IQueryable<Person> _queryable;
         [Params(10_000)] public int Count;
+
         [GlobalSetup]
         public void Setup()
         {
@@ -560,17 +648,17 @@ namespace ConsoleApp1
                 yield return new Person();
             }
         }
+
         [Benchmark]
         public void ToList()
         {
             var r = _personTester.Case1(_queryable);
-        }        
+        }
+
         [Benchmark]
         public void ToArray()
         {
             var r = _personTester.Case2(_queryable);
-        }      
-
+        }
     }
-
 }

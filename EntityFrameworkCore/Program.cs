@@ -12,7 +12,15 @@ namespace EntityFrameworkCore
     {
         static void Main(string[] args)
         {
-           
+
+
+            var dbCtx = new PersonDbContext();
+            var ps = dbCtx
+                .Persons
+                .Take(100);
+
+
+            var array = ps.ToArray();
         }
     }
 
@@ -47,12 +55,17 @@ namespace EntityFrameworkCore
             return persons;
         }
     }
+
     public class Person
     {
         public int Id { get; set; }
         public int Age { get; set; }
         public bool IsAdult { get; set; }
         public string Name { get; set; }
+
+        public Person()
+        {
+        }
     }
 
     public class PersonDbContext : DbContext
