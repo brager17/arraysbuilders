@@ -47,11 +47,14 @@ namespace ConsoleApp1
             // Console.WriteLine(Marshal.SizeOf<PersonClass>());
             // BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
             BenchmarkRunner.Run<CompareToArrayVsToList>();
+            // var b = new CompareToArrayVsToList();
+            // Array.Copy(new int[0], new int[0], 1);
+            // b._count = 10;
+            // b.ToListClass();
         }
     }
 
-    [MemoryDiagnoser]
-    public class MemoryTest
+    [MemoryDiagnoser] public class MemoryTest
     {
         [Benchmark]
         public PersonClass ClassSize()
@@ -90,139 +93,6 @@ namespace ConsoleApp1
         }
     }
 
-    [MemoryDiagnoser]
-    public class CompareArrayBuilderAndToList
-    {
-        private IEnumerable<PersonStruct> Enumerable;
-        private IEnumerable<PersonClass> EnumerableClasses;
-
-        [Params(10, 100, 1000, 10_000, 100_000)]
-        public int _count;
-
-        private IEnumerable<PersonStruct> GetEnumerable()
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return new PersonStruct
-                {
-                    Name = "name",
-                    Age = 12
-                };
-            }
-        }
-
-        private IEnumerable<PersonClass> GetEnumerableClasses()
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return new PersonClass()
-                {
-                    Name = "name",
-                    Age = 12
-                };
-            }
-        }
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            Enumerable = GetEnumerable();
-            EnumerableClasses = GetEnumerableClasses();
-        }
-
-        [Benchmark]
-        public void ToListClasses()
-        {
-            var r = EnumerableClasses.ToList();
-        }
-
-        [Benchmark]
-        public void ToListCopyClasses()
-        {
-            var r = EnumerableClasses.ToListCopy();
-        }
-
-        [Benchmark]
-        public void ToListStructures()
-        {
-            var r = Enumerable.ToList();
-        }
-
-        [Benchmark]
-        public void ToListCopyStructures()
-        {
-            var a = 0X7FEFFFFF;
-            var r = Enumerable.ToListCopy();
-        }
-    }
-
-    [MemoryDiagnoser]
-    public class ToArrayBenchmark
-    {
-        private IEnumerable<PersonStruct> Enumerable;
-        private IEnumerable<PersonClass> EnumerableClasses;
-
-        [Params(10, 100, 1000, 10_000, 100_000)]
-        public int _count;
-
-        private IEnumerable<PersonStruct> GetEnumerable()
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return new PersonStruct
-                {
-                    Name = "name",
-                    Age = 12
-                };
-            }
-        }
-
-        private IEnumerable<PersonClass> GetEnumerableClasses()
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return new PersonClass()
-                {
-                    Name = "name",
-                    Age = 12
-                };
-            }
-        }
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            Enumerable = GetEnumerable();
-            EnumerableClasses = GetEnumerableClasses();
-        }
-
-        [Benchmark]
-        public void OriginalToArrayClasses()
-        {
-            var r = EnumerableClasses.ToArray();
-        }
-
-
-        [Benchmark]
-        public void CopyToArrayClasses()
-        {
-            var r = EnumerableClasses.ToArrayCopy();
-        }
-
-
-        [Benchmark]
-        public void OriginalToArrayStructure()
-        {
-            var r = Enumerable.ToArray();
-        }
-
-
-        [Benchmark]
-        public void CopyToArrayStructure()
-        {
-            var r = Enumerable.ToArrayCopy();
-        }
-    }
 
     public interface IArrayFromEnumerableBuilder<T>
     {
@@ -368,39 +238,39 @@ namespace ConsoleApp1
 
         public T[] GetArr(IEnumerable<T> enumerable)
         {
-            using var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                if (_index == _current.Length)
+            using (var enumerator = enumerable.GetEnumerator())
+                while (enumerator.MoveNext())
                 {
-                    if (_first == null)
+                    if (_index == _current.Length)
                     {
-                        _first = new Node() {_value = _current};
-                    }
-
-                    else
-                    {
-                        if (_last == null)
+                        if (_first == null)
                         {
-                            _last = new Node() {_value = _current};
-                            _first._next = _last;
+                            _first = new Node() {_value = _current};
                         }
+
                         else
                         {
-                            _last._next = new Node {_value = _current};
-                            _last = _last._next;
+                            if (_last == null)
+                            {
+                                _last = new Node() {_value = _current};
+                                _first._next = _last;
+                            }
+                            else
+                            {
+                                _last._next = new Node {_value = _current};
+                                _last = _last._next;
+                            }
                         }
+
+                        var newArr = new T[_index * 2];
+                        Array.Copy(_current, 0, newArr, 0, _index);
+                        _current = newArr;
+                        _index = 0;
                     }
 
-                    var newArr = new T[_index * 2];
-                    Array.Copy(_current, 0, newArr, 0, _index);
-                    _current = newArr;
-                    _index = 0;
+                    _current[_index++] = enumerator.Current;
+                    _count++;
                 }
-
-                _current[_index++] = enumerator.Current;
-                _count++;
-            }
 
             var resultArr = new T[_count];
             var resultArrCount = 0;
@@ -434,21 +304,8 @@ namespace ConsoleApp1
         }
     }
 
-    public static class ArrayBuilderExtensions
-    {
-        public static T[] ToListCopy<T>(this IEnumerable<T> enumerable)
-        {
-            return new MyArrayBuilderFromOneMethod().GetArray(enumerable);
-        }
 
-        public static T[] ToArrayCopy<T>(this IEnumerable<T> enumerable)
-        {
-            return new MyArrayBuilderWithChunks().GetArray(enumerable);
-        }
-    }
-
-    [MemoryDiagnoser]
-    public class CopyArrayStructureVsClasses
+    [MemoryDiagnoser] public class CopyArrayStructureVsClasses
     {
         private PersonClass[] _classes;
         private PersonStruct[] _structs;
@@ -479,6 +336,7 @@ namespace ConsoleApp1
         }
     }
 
+    [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter, PlainExporter] [MemoryDiagnoser]
     public class CompareToArrayVsToList
     {
         private IEnumerable<PersonStruct> EnumerableStructs;
@@ -486,43 +344,107 @@ namespace ConsoleApp1
         private IEnumerable<int> EnumerableInts;
         private IEnumerable<string> EnumerableStrings;
 
+        // [Params(
+        //     10,
+        //     16, 17,
+        //     24,
+        //     32, 33,
+        //     48,
+        //     64, 65,
+        //     96,
+        //     128, 129,
+        //     192,
+        //     256, 257,
+        //     384,
+        //     512, 513,
+        //     768,
+        //     1024, 1025,
+        //     1536,
+        //     2048, 2049,
+        //     3072,
+        //     4096, 4097,
+        //     6144,
+        //     8182, 8183,
+        //     12288,
+        //     16384, 16385,
+        //     24576,
+        //     262144, 262145,
+        //     393216,
+        //     524288, 524289,
+        //     786432,
+        //     1048576, 1048567,
+        //     1572864,
+        //     2097152, 2097153,
+        //     3145728,
+        //     4194304, 4194305,
+        //     6291456,
+        //     8388608, 8388609,
+        //     12582912,
+        //     16777216, 16777217,
+        //     25165824,
+        //     33554432, 33554432
+        // )]
         [Params(
-            10,
-            16, 17,
-            24,
-            32, 33,
-            48,
-            64, 65,
-            96,
-            128, 129,
-            192,
-            256, 257,
-            384,
-            512, 513,
-            768,
-            1024, 1025,
-            1536,
-            2048, 2049,
-            3072,
-            4096, 4097,
-            6144,
-            8182, 8183,
-            12288,
-            16384, 16385,
-            24576,
-            262144, 262145,
-            393216,
-            524288, 524289,
-            786432,
-            1048576, 1048567,
-            1572864,
-            2097152, 2097153,
-            3145728,
-            4194304, 4194305,
-            6291456,
-            8388608, 8388609,
-            12582912,
-            16777216, 16777217
+            10000,
+            20000,
+            30000,
+            40000,
+            50000,
+            60000,
+            70000,
+            80000,
+            90000,
+            100000,
+            110000,
+            120000,
+            130000,
+            140000,
+            150000,
+            160000,
+            170000,
+            180000,
+            190000,
+            200000,
+            21000,
+            220000,
+            230000,
+            240000,
+            250000,
+            260000,
+            270000,
+            280000,
+            290000,
+            300000,
+            31000,
+            320000,
+            330000,
+            340000,
+            350000,
+            360000,
+            370000,
+            380000,
+            390000,
+            400000,
+            41000,
+            420000,
+            430000,
+            440000,
+            450000,
+            460000,
+            470000,
+            480000,
+            490000,
+            500000,
+            51000,
+            520000,
+            530000,
+            540000,
+            550000,
+            560000,
+            570000,
+            580000,
+            590000,
+            600000
         )]
         public int _count;
 
@@ -574,18 +496,18 @@ namespace ConsoleApp1
             }
         }
 
-        [Benchmark]
-        public void ToArrayInt()
-        {
-            var r = EnumerableInts.ToArray();
-        }
-
-        [Benchmark]
-        public void ToArrayString()
-        {
-            var r = EnumerableStrings.ToArray();
-        }
-
+        // [Benchmark]
+        // public void ToArrayInt()
+        // {
+        //     var r = EnumerableInts.ToArray();
+        // }
+        //
+        // [Benchmark]
+        // public void ToArrayString()
+        // {
+        //     var r = EnumerableStrings.ToArray();
+        // }
+        //
 
         [Benchmark]
         public void ToArrayClass()
@@ -593,25 +515,25 @@ namespace ConsoleApp1
             var r = EnumerableClasses.ToArray();
         }
 
-
-        [Benchmark]
-        public void ToArrayStruct()
-        {
-            var r = EnumerableStructs.ToArray();
-        }
-
-        [Benchmark]
-        public void ToListInt()
-        {
-            var r = EnumerableInts.ToList();
-        }
-
-        [Benchmark]
-        public void ToListString()
-        {
-            var r = EnumerableStrings.ToList();
-        }
-
+        //
+        // [Benchmark]
+        // public void ToArrayStruct()
+        // {
+        //     var r = EnumerableStructs.ToArray();
+        // }
+        //
+        // [Benchmark]
+        // public void ToListInt()
+        // {
+        //     var r = EnumerableInts.ToList();
+        // }
+        //
+        // [Benchmark]
+        // public void ToListString()
+        // {
+        //     var r = EnumerableStrings.ToList();
+        // }
+        //
 
         [Benchmark]
         public void ToListClass()
@@ -620,19 +542,20 @@ namespace ConsoleApp1
         }
 
 
-        [Benchmark]
-        public void ToListStruct()
-        {
-            var r = EnumerableStructs.ToList();
-        }
+        // [Benchmark]
+        // public void ToListStruct()
+        // {
+        //     var r = EnumerableStructs.ToList();
+        // }
     }
 
-    [MemoryDiagnoser]
-    public class ToListToArrayQueryableBenchmark
+    [MemoryDiagnoser] public class ToListToArrayQueryableBenchmark
     {
         private PersonTester _personTester;
         private IQueryable<Person> _queryable;
-        [Params(10_000)] public int Count;
+
+        [Params(10_000)]
+        public int Count;
 
         [GlobalSetup]
         public void Setup()

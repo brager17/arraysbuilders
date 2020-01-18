@@ -55,7 +55,7 @@ namespace ArrayBuildersTests
         public IEnumerator<object[]> GetEnumerator()
         {
             Enumerable.Range(1, 100);
-            yield return new object[] {new MyArrayBuilderWithChunks(), structs};
+            // yield return new object[] {new MyArrayBuilderWithChunks(), structs};
             yield return new object[] {new MyArrayBuilderFromOneMethod(), structs};
         }
 
