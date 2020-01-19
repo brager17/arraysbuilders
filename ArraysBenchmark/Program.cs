@@ -40,13 +40,15 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(sizeof(decimal));
             // BenchmarkRunner.Run<CopyArrayStructureVsClasses>();
             // BenchmarkRunner.Run<CompareArrayBuilderAndToList>();
             // BenchmarkRunner.Run<ToArrayBenchmark>();
             // Console.WriteLine(Marshal.SizeOf<PersonClass>());
             // BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
-            BenchmarkRunner.Run<CompareToArrayVsToList>();
+            BenchmarkRunner.Run<IntBenchmarks>();
+            // BenchmarkRunner.Run<StringBenchmark>();
+            // BenchmarkRunner.Run<ClassBenchmark>();
+            // BenchmarkRunner.Run<StructBenchmark>();
             // var b = new CompareToArrayVsToList();
             // Array.Copy(new int[0], new int[0], 1);
             // b._count = 10;
@@ -336,54 +338,14 @@ namespace ConsoleApp1
         }
     }
 
+
     [MarkdownExporter, AsciiDocExporter, HtmlExporter, CsvExporter, RPlotExporter, PlainExporter] [MemoryDiagnoser]
-    public class CompareToArrayVsToList
+    public class StructBenchmark
     {
         private IEnumerable<PersonStruct> EnumerableStructs;
-        private IEnumerable<PersonClass> EnumerableClasses;
-        private IEnumerable<int> EnumerableInts;
-        private IEnumerable<string> EnumerableStrings;
 
-        // [Params(
-        //     10,
-        //     16, 17,
-        //     24,
-        //     32, 33,
-        //     48,
-        //     64, 65,
-        //     96,
-        //     128, 129,
-        //     192,
-        //     256, 257,
-        //     384,
-        //     512, 513,
-        //     768,
-        //     1024, 1025,
-        //     1536,
-        //     2048, 2049,
-        //     3072,
-        //     4096, 4097,
-        //     6144,
-        //     8182, 8183,
-        //     12288,
-        //     16384, 16385,
-        //     24576,
-        //     262144, 262145,
-        //     393216,
-        //     524288, 524289,
-        //     786432,
-        //     1048576, 1048567,
-        //     1572864,
-        //     2097152, 2097153,
-        //     3145728,
-        //     4194304, 4194305,
-        //     6291456,
-        //     8388608, 8388609,
-        //     12582912,
-        //     16777216, 16777217,
-        //     25165824,
-        //     33554432, 33554432
-        // )]
+    
+        #region params
         [Params(
             10000,
             20000,
@@ -444,16 +406,65 @@ namespace ConsoleApp1
             570000,
             580000,
             590000,
-            600000
+            600000,
+            610000,
+            620000,
+            630000,
+            640000,
+            650000,
+            660000,
+            670000,
+            680000,
+            690000,
+            700000,
+            710000,
+            720000,
+            730000,
+            740000,
+            750000,
+            760000,
+            770000,
+            780000,
+            790000,
+            800000,
+            810000,
+            820000,
+            830000,
+            840000,
+            850000,
+            860000,
+            870000,
+            880000,
+            890000,
+            900000,
+            910000,
+            920000,
+            930000,
+            940000,
+            950000,
+            960000,
+            970000,
+            980000,
+            990000,
+            1000000,
+            1000010,
+            1000020,
+            1000030,
+            1000040,
+            1000050,
+            1000060,
+            1000070,
+            1000080,
+            1000090,
+            1000100,
+            1000110
         )]
+        #endregion
         public int _count;
 
-        public CompareToArrayVsToList()
+        public StructBenchmark()
         {
             EnumerableStructs = GetEnumerable();
-            EnumerableClasses = GetEnumerableClasses();
-            EnumerableInts = GetEnumerableInts();
-            EnumerableStrings = GetEnumerableStrings();
         }
 
         private IEnumerable<PersonStruct> GetEnumerable()
@@ -467,86 +478,19 @@ namespace ConsoleApp1
                 };
             }
         }
-
-        private IEnumerable<PersonClass> GetEnumerableClasses()
+        
+        [Benchmark]
+        public void ToArrayStruct()
         {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return new PersonClass()
-                {
-                    Name = "name",
-                    Age = 12
-                };
-            }
+            var r = EnumerableStructs.ToArray();
         }
 
-        private IEnumerable<int> GetEnumerableInts()
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return 1;
-            }
-        }
-
-        private IEnumerable<string> GetEnumerableStrings()
-        {
-            for (var i = 0; i < _count; i++)
-            {
-                yield return "string";
-            }
-        }
-
-        // [Benchmark]
-        // public void ToArrayInt()
-        // {
-        //     var r = EnumerableInts.ToArray();
-        // }
-        //
-        // [Benchmark]
-        // public void ToArrayString()
-        // {
-        //     var r = EnumerableStrings.ToArray();
-        // }
-        //
 
         [Benchmark]
-        public void ToArrayClass()
+        public void ToListStruct()
         {
-            var r = EnumerableClasses.ToArray();
+            var r = EnumerableStructs.ToList();
         }
-
-        //
-        // [Benchmark]
-        // public void ToArrayStruct()
-        // {
-        //     var r = EnumerableStructs.ToArray();
-        // }
-        //
-        // [Benchmark]
-        // public void ToListInt()
-        // {
-        //     var r = EnumerableInts.ToList();
-        // }
-        //
-        // [Benchmark]
-        // public void ToListString()
-        // {
-        //     var r = EnumerableStrings.ToList();
-        // }
-        //
-
-        [Benchmark]
-        public void ToListClass()
-        {
-            var r = EnumerableClasses.ToList();
-        }
-
-
-        // [Benchmark]
-        // public void ToListStruct()
-        // {
-        //     var r = EnumerableStructs.ToList();
-        // }
     }
 
     [MemoryDiagnoser] public class ToListToArrayQueryableBenchmark
