@@ -45,9 +45,14 @@ namespace ConsoleApp1
             // BenchmarkRunner.Run<ToArrayBenchmark>();
             // Console.WriteLine(Marshal.SizeOf<PersonClass>());
             // BenchmarkRunner.Run<ToListToArrayQueryableBenchmark>();
-            BenchmarkRunner.Run<IntBenchmarks>();
+            // BenchmarkRunner.Run<IntBenchmarks>();
             // BenchmarkRunner.Run<StringBenchmark>();
-            // BenchmarkRunner.Run<ClassBenchmark>();
+            var q = BenchmarkRunner.Run<ClassBenchmarkWithStaticPerson>();
+            var totalOperations = q.Reports.Select(x => x.GcStats.TotalOperations);
+            foreach (var uten in totalOperations)
+            {
+                Console.WriteLine(uten);
+            }
             // BenchmarkRunner.Run<StructBenchmark>();
             // var b = new CompareToArrayVsToList();
             // Array.Copy(new int[0], new int[0], 1);
@@ -88,10 +93,7 @@ namespace ConsoleApp1
 
         public void IntPtrTest()
         {
-            unsafe
-            {
-                System.Runtime.InteropServices.Marshal.SizeOf(typeof(IntPtr));
-            }
+            Marshal.SizeOf(typeof(IntPtr));
         }
     }
 
@@ -344,8 +346,9 @@ namespace ConsoleApp1
     {
         private IEnumerable<PersonStruct> EnumerableStructs;
 
-    
+
         #region params
+
         [Params(
             10000,
             20000,
@@ -459,7 +462,9 @@ namespace ConsoleApp1
             1000100,
             1000110
         )]
+
         #endregion
+
         public int _count;
 
         public StructBenchmark()
@@ -478,7 +483,7 @@ namespace ConsoleApp1
                 };
             }
         }
-        
+
         [Benchmark]
         public void ToArrayStruct()
         {
