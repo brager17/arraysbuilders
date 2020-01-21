@@ -59,10 +59,10 @@ namespace ArrayBuildersTests
             yield return new object[] {new MyArrayBuilderFromOneMethod(), structs};
         }
 
-        private IEnumerable<object[]> ArrayBuilder()
-        {
-            yield return new object[] {new ArrayBuilderWithChunksUsage<PersonStruct>()};
-        }
+        // private IEnumerable<object[]> ArrayBuilder()
+        // {
+            // yield return new object[] {new ArrayBuilderWithChunksUsage<PersonStruct>()};
+        // }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
